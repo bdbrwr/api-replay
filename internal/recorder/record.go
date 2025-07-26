@@ -21,13 +21,13 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 		Short: "Record an API response and save it to an output file",
 		Args:  cobra.MaximumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			info, err := os.Stat(cfg.OutputDir)
+			info, err := os.Stat(cfg.Dir)
 			if err == nil && !info.IsDir() {
-				return fmt.Errorf("output_dir %q exists and is not a directory", cfg.OutputDir)
+				return fmt.Errorf("output_dir %q exists and is not a directory", cfg.Dir)
 			}
 			if os.IsNotExist(err) {
-				if err := os.MkdirAll(cfg.OutputDir, 0755); err != nil {
-					return fmt.Errorf("creating output_dir %q: %w", cfg.OutputDir, err)
+				if err := os.MkdirAll(cfg.Dir, 0755); err != nil {
+					return fmt.Errorf("creating output_dir %q: %w", cfg.Dir, err)
 				}
 			}
 			url, err := cliutils.GetArgOrFlag(cmd, args, "url", 0, "URL to fetch")
@@ -39,7 +39,7 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 				return err
 			}
 
-			outputPath := filepath.Join(cfg.OutputDir, output)
+			outputPath := filepath.Join(cfg.Dir, output)
 			if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
 				return fmt.Errorf("creating output directory: %w", err)
 			}

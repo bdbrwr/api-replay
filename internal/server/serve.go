@@ -28,10 +28,9 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 		Short: "Serve cached responses over HTTP",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-
 			dirPath, err := cliutils.GetArgOrFlag(cmd, args, "from-dir", 0, "directory to serve")
-			if err != nil {
-				return fmt.Errorf("failed resolving directory: %w", err)
+			if err != nil || dirPath == "" {
+				dirPath = cfg.Dir
 			}
 
 			router := chi.NewRouter()
@@ -41,7 +40,11 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 					return nil
 				}
 
-				routePath := "/" + filepath.Base(path)
+				relPath, err := filepath.Rel(dirPath, path)
+				if err != nil {
+					return fmt.Errorf("calculating relative path: %w", err)
+				}
+				routePath := "/" + filepath.ToSlash(relPath)
 
 				router.Get(routePath, func(w http.ResponseWriter, r *http.Request) {
 					file, err := os.Open(path)
@@ -80,7 +83,7 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&dir, "from-dir", "D", "", "Directory containing cached responses")
-	cmd.Flags().StringVarP(&port, "port", "P", "1337", "Port to serve on")
+	cmd.Flags().StringVarP(&port, "port", "P", cfg.Port, "Port to serve on")
 
 	return cmd
 }

@@ -1,2 +1,2 @@
-output_dir: "./api-replay"
-port: "1337"
+dir: "./api-replay"
+port: "1338"

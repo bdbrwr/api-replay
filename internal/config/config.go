@@ -7,8 +7,8 @@ import (
 )
 
 type Config struct {
-	OutputDir string `mapstructure:"output_dir"`
-	Port      string `mapstructure:"port"`
+	Dir  string `mapstructure:"dir"`
+	Port string `mapstructure:"port"`
 }
 
 func Load() (*Config, error) {
