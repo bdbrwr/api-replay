@@ -70,8 +70,6 @@ func NewCommand() *cobra.Command {
 
 	cmd.Flags().StringVarP(&url, "url", "U", "", "URL to fetch")
 	cmd.Flags().StringVarP(&output, "output", "O", "", "Path to save the response")
-	cmd.MarkFlagRequired("url")
-	cmd.MarkFlagRequired("output")
 
 	return cmd
 }

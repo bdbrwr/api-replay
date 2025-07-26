@@ -41,10 +41,12 @@ func NewCommand() *cobra.Command {
 			}
 
 			fmt.Printf("Status: %d\n", resp.Status)
+
 			fmt.Println("Headers:")
 			for k, v := range resp.Headers {
 				fmt.Printf("  %s: %v\n", k, v)
 			}
+
 			fmt.Println("Body:")
 			var formattedBody map[string]any
 			if err := json.Unmarshal(resp.Body, &formattedBody); err == nil {

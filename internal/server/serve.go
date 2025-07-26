@@ -27,7 +27,7 @@ func NewCommand() *cobra.Command {
 		Short: "Serve cached responses over HTTP",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Resolve directory from flag or args[0]
+
 			dirPath, err := cliutils.GetArgOrFlag(cmd, args, "from-dir", 0, "directory to serve")
 			if err != nil {
 				return fmt.Errorf("resolving directory: %w", err)
@@ -35,10 +35,9 @@ func NewCommand() *cobra.Command {
 
 			router := chi.NewRouter()
 
-			// Walk through the directory and map each .json file
 			err = filepath.WalkDir(dirPath, func(path string, d fs.DirEntry, walkErr error) error {
 				if walkErr != nil || d.IsDir() || filepath.Ext(path) != ".json" {
-					return nil // skip
+					return nil
 				}
 
 				routePath := "/" + filepath.Base(path)
