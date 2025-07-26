@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/bdbrwr/api-replay/internal/cliutils"
+	"github.com/bdbrwr/api-replay/internal/config"
 	"github.com/go-chi/chi/v5"
 	"github.com/spf13/cobra"
 )
@@ -19,7 +20,7 @@ type CachedResponse struct {
 	Body    json.RawMessage     `json:"body"`
 }
 
-func NewCommand() *cobra.Command {
+func NewCommand(cfg *config.Config) *cobra.Command {
 	var dir, port string
 
 	cmd := &cobra.Command{
@@ -30,7 +31,7 @@ func NewCommand() *cobra.Command {
 
 			dirPath, err := cliutils.GetArgOrFlag(cmd, args, "from-dir", 0, "directory to serve")
 			if err != nil {
-				return fmt.Errorf("resolving directory: %w", err)
+				return fmt.Errorf("failed resolving directory: %w", err)
 			}
 
 			router := chi.NewRouter()
@@ -45,14 +46,14 @@ func NewCommand() *cobra.Command {
 				router.Get(routePath, func(w http.ResponseWriter, r *http.Request) {
 					file, err := os.Open(path)
 					if err != nil {
-						http.Error(w, "Failed to open cached file", http.StatusInternalServerError)
+						http.Error(w, "failed opening cached file", http.StatusInternalServerError)
 						return
 					}
 					defer file.Close()
 
 					var resp CachedResponse
 					if err := json.NewDecoder(file).Decode(&resp); err != nil {
-						http.Error(w, "Invalid cached file", http.StatusInternalServerError)
+						http.Error(w, "invalid cached file", http.StatusInternalServerError)
 						return
 					}
 
@@ -70,7 +71,7 @@ func NewCommand() *cobra.Command {
 			})
 
 			if err != nil {
-				return fmt.Errorf("walking cache directory: %w", err)
+				return fmt.Errorf("failed walking cache directory: %w", err)
 			}
 
 			fmt.Printf("Serving cached responses from %s on http://localhost:%s\n", dirPath, port)

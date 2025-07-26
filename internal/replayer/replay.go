@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/bdbrwr/api-replay/internal/cliutils"
+	"github.com/bdbrwr/api-replay/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +16,7 @@ type CachedResponse struct {
 	Body    json.RawMessage     `json:"body"`
 }
 
-func NewCommand() *cobra.Command {
+func NewCommand(cfg *config.Config) *cobra.Command {
 	var inputFlag string
 
 	cmd := &cobra.Command{

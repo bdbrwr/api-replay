@@ -33,6 +33,5 @@ go.work.sum
 # .vscode/
 
 #Demo files
-cached/
-out
-api-replay
+ar
+api-replay/
