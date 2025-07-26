@@ -61,7 +61,7 @@ func NewCommand() *cobra.Command {
 			enc := json.NewEncoder(file)
 			enc.SetIndent("", " ") // make json readable by humans
 			if err := enc.Encode(cached); err != nil {
-				return fmt.Errorf("failed encoding JSON to output: %w, err")
+				return fmt.Errorf("failed encoding JSON to output: %w", err)
 			}
 
 			return nil
