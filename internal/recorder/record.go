@@ -2,6 +2,7 @@ package recorder
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -14,7 +15,7 @@ func NewCommand() *cobra.Command {
 	var url, output string
 
 	cmd := &cobra.Command{
-		Use:   "record",
+		Use:   "record [url] [output-path]",
 		Short: "Record an API reponse and save it to an output file",
 		Args:  cobra.MaximumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -29,23 +30,23 @@ func NewCommand() *cobra.Command {
 
 			req, err := http.NewRequest("GET", url, nil)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed creating HTTP request: %w", err)
 			}
 
 			httpClient := &http.Client{}
 
 			resp, err := httpClient.Do(req)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed executing HTTP request: %w", err)
 			}
 			defer resp.Body.Close()
 
 			data, err := io.ReadAll(resp.Body)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed reading response body: %w", err)
 			}
 
-			cached := map[string]interface{}{
+			cached := map[string]any{
 				"status":  resp.StatusCode,
 				"headers": resp.Header,
 				"body":    json.RawMessage(data),
@@ -53,13 +54,17 @@ func NewCommand() *cobra.Command {
 
 			file, err := os.Create(output)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed creating output file: %w", err)
 			}
 			defer file.Close()
 
 			enc := json.NewEncoder(file)
 			enc.SetIndent("", " ") // make json readable by humans
-			return enc.Encode(cached)
+			if err := enc.Encode(cached); err != nil {
+				return fmt.Errorf("failed encoding JSON to output: %w, err")
+			}
+
+			return nil
 		},
 	}
 
