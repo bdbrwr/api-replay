@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/bdbrwr/api-replay/internal/cliutils"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +16,16 @@ func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "record",
 		Short: "Record an API reponse and save it to an output file",
+		Args:  cobra.MaximumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			url, err := cliutils.GetArgOrFlag(cmd, args, "url", 0, "URL to fetch")
+			if err != nil {
+				return err
+			}
+			output, err := cliutils.GetArgOrFlag(cmd, args, "output", 1, "output file path")
+			if err != nil {
+				return err
+			}
 
 			req, err := http.NewRequest("GET", url, nil)
 			if err != nil {
