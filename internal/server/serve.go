@@ -79,7 +79,7 @@ func NewCommand() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&dir, "from-dir", "D", "", "Directory containing cached responses")
-	cmd.Flags().StringVarP(&port, "port", "P", "8080", "Port to serve on")
+	cmd.Flags().StringVarP(&port, "port", "P", "1337", "Port to serve on")
 
 	return cmd
 }
