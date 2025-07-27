@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/bdbrwr/api-replay/internal/cliutils"
 	"github.com/bdbrwr/api-replay/internal/config"
@@ -14,12 +16,12 @@ import (
 )
 
 func NewCommand(cfg *config.Config) *cobra.Command {
-	var urlFlag, outputFlag string
+	var outputFlag, baseURLFlag string
 
 	cmd := &cobra.Command{
 		Use:   "record [url] [output-path]",
 		Short: "Record an API response and save it to an output file",
-		Args:  cobra.MaximumNArgs(2),
+		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			info, err := os.Stat(cfg.Dir)
 			if err == nil && !info.IsDir() {
@@ -27,37 +29,64 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 			}
 			if os.IsNotExist(err) {
 				if err := os.MkdirAll(cfg.Dir, 0755); err != nil {
-					return fmt.Errorf("creating output_dir %q: %w", cfg.Dir, err)
+					return fmt.Errorf("failed creating output_dir %q: %w", cfg.Dir, err)
 				}
 			}
-			url, err := cliutils.GetArgOrFlag(cmd, args, "url", 0, "URL to fetch")
-			if err != nil {
-				return err
-			}
-			output, err := cliutils.GetArgOrFlag(cmd, args, "output", 1, "output file path")
+
+			urlStr, err := cliutils.GetArgOrFlag(cmd, args, "url", 0, "URL to fetch")
 			if err != nil {
 				return err
 			}
 
-			outputPath := filepath.Join(cfg.Dir, output)
+			baseURL, _ := cmd.Flags().GetString("base-url")
+
+			parsedURL, err := url.Parse(urlStr)
+			if err != nil {
+				return fmt.Errorf("invalid URL: %w", err)
+			}
+
+			relPath := parsedURL.Path
+			if baseURL != "" {
+				baseParsed, err := url.Parse(baseURL)
+				if err != nil {
+					return fmt.Errorf("invalid base-url: %w", err)
+				}
+				basePath := baseParsed.Path
+				if basePath != "/" && strings.HasPrefix(relPath, basePath) {
+					relPath = strings.TrimPrefix(relPath, basePath)
+				}
+			}
+			if relPath == "" || relPath == "/" {
+				relPath = "index"
+			}
+			if filepath.Ext(relPath) != ".json" {
+				relPath += ".json"
+			}
+
+			baseDir := cfg.Dir
+			if outputFlag != "" {
+				baseDir = outputFlag
+			}
+
+			outputPath := filepath.Join(baseDir, filepath.FromSlash(relPath))
+
 			if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
-				return fmt.Errorf("creating output directory: %w", err)
+				return fmt.Errorf("failed creating output directory: %w", err)
 			}
 
-			req, err := http.NewRequest("GET", url, nil)
+			req, err := http.NewRequest("GET", urlStr, nil)
 			if err != nil {
-				return fmt.Errorf("creating HTTP request: %w", err)
+				return fmt.Errorf("failed creating HTTP request: %w", err)
 			}
-
 			resp, err := http.DefaultClient.Do(req)
 			if err != nil {
-				return fmt.Errorf("executing HTTP request: %w", err)
+				return fmt.Errorf("failed executing HTTP request: %w", err)
 			}
 			defer resp.Body.Close()
 
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {
-				return fmt.Errorf("reading response body: %w", err)
+				return fmt.Errorf("failed reading response body: %w", err)
 			}
 
 			cached := map[string]any{
@@ -78,12 +107,13 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 				return fmt.Errorf("encoding response: %w", err)
 			}
 
+			fmt.Printf("Recorded %s -> %s\n", urlStr, outputPath)
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVarP(&urlFlag, "url", "U", "", "URL to fetch")
-	cmd.Flags().StringVarP(&outputFlag, "output", "O", "", "Path to save the response (relative to output_dir)")
+	cmd.Flags().StringVarP(&outputFlag, "output", "O", "", "Override path to save the response (relative to dir)")
+	cmd.Flags().StringVarP(&baseURLFlag, "base-url", "B", "", "Base URL to strip from request path when saving")
 
 	return cmd
 }
