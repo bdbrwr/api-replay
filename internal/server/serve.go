@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -45,10 +46,33 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 				if err != nil {
 					return fmt.Errorf("failed to calculate relative path: %w", err)
 				}
-				routePath := "/" + strings.TrimSuffix(filepath.ToSlash(relPath), ".json")
+
+				raw := strings.TrimSuffix(filepath.ToSlash(relPath), ".json")
+
+				var routePath string
+				var expectedQuery string
+
+				if at := strings.Index(raw, "@"); at != -1 {
+					decodedQuery, err := url.QueryUnescape(raw[at+1:])
+					if err != nil {
+						return fmt.Errorf("failed to decode query from %q: %w", raw, err)
+					}
+					routePath = "/" + raw[:at]
+					expectedQuery = decodedQuery
+				} else {
+					routePath = "/" + raw
+				}
 
 				handlerPath := path
 				router.Get(routePath, func(w http.ResponseWriter, r *http.Request) {
+					// If we have expected query parameters, validate them
+					if expectedQuery != "" {
+						if r.URL.RawQuery != expectedQuery {
+							http.NotFound(w, r)
+							return
+						}
+					}
+
 					file, err := os.Open(handlerPath)
 					if err != nil {
 						http.Error(w, "failed opening cached file", http.StatusInternalServerError)
@@ -71,7 +95,11 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 					w.Write(resp.Body)
 				})
 
-				fmt.Printf("→ %s mapped to %s\n", routePath, path)
+				displayPath := routePath
+				if expectedQuery != "" {
+					displayPath += "?" + expectedQuery
+				}
+				fmt.Printf("→ %s mapped to %s\n", displayPath, path)
 				return nil
 			})
 

@@ -57,9 +57,16 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 					relPath = strings.TrimPrefix(relPath, basePath)
 				}
 			}
+
 			if relPath == "" || relPath == "/" {
 				relPath = "index"
 			}
+
+			if parsedURL.RawQuery != "" {
+				encodedQuery := url.QueryEscape(parsedURL.RawQuery)
+				relPath += "@" + encodedQuery
+			}
+
 			if filepath.Ext(relPath) != ".json" {
 				relPath += ".json"
 			}
