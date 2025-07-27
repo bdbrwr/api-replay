@@ -101,6 +101,10 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 				return fmt.Errorf("failed reading response body: %w", err)
 			}
 
+			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+				return fmt.Errorf("HTTP error: %d\nResponse body:\n%s", resp.StatusCode, body)
+			}
+
 			cached := map[string]any{
 				"status":  resp.StatusCode,
 				"headers": resp.Header,
