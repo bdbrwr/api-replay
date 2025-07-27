@@ -1,2 +1,2 @@
-dir: "./api-replay"
+dir: "./api_replay"
 port: "1338"
