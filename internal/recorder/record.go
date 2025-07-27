@@ -17,6 +17,7 @@ import (
 
 func NewCommand(cfg *config.Config) *cobra.Command {
 	var outputFlag, baseURLFlag string
+	var headerFlags []string
 
 	cmd := &cobra.Command{
 		Use:   "record [url] [output-path]",
@@ -78,6 +79,17 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("failed creating HTTP request: %w", err)
 			}
+
+			for _, h := range headerFlags {
+				parts := strings.SplitN(h, ":", 2)
+				if len(parts) != 2 {
+					return fmt.Errorf("invalid header format, expected 'Key: Value': %s", h)
+				}
+				key := strings.TrimSpace(parts[0])
+				value := strings.TrimSpace(parts[1])
+				req.Header.Add(key, value)
+			}
+
 			resp, err := http.DefaultClient.Do(req)
 			if err != nil {
 				return fmt.Errorf("failed executing HTTP request: %w", err)
@@ -114,6 +126,7 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 
 	cmd.Flags().StringVarP(&outputFlag, "output", "O", "", "Override path to save the response (relative to dir)")
 	cmd.Flags().StringVarP(&baseURLFlag, "base-url", "B", "", "Base URL to strip from request path when saving")
+	cmd.Flags().StringSliceVarP(&headerFlags, "header", "H", nil, "Custom headers to include (eg -H 'Authorization: Bearer ...')")
 
 	return cmd
 }
