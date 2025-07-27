@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/bdbrwr/api-replay/internal/cliutils"
 	"github.com/bdbrwr/api-replay/internal/config"
@@ -42,12 +43,13 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 
 				relPath, err := filepath.Rel(dirPath, path)
 				if err != nil {
-					return fmt.Errorf("calculating relative path: %w", err)
+					return fmt.Errorf("failed to calculate relative path: %w", err)
 				}
-				routePath := "/" + filepath.ToSlash(relPath)
+				routePath := "/" + strings.TrimSuffix(filepath.ToSlash(relPath), ".json")
 
+				handlerPath := path
 				router.Get(routePath, func(w http.ResponseWriter, r *http.Request) {
-					file, err := os.Open(path)
+					file, err := os.Open(handlerPath)
 					if err != nil {
 						http.Error(w, "failed opening cached file", http.StatusInternalServerError)
 						return
