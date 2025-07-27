@@ -44,17 +44,43 @@
 
 ---
 
+## 🚀 Use Cases & Features
+
+**API-Replay** is designed for developers who want to:
+
+- 🧪 **Develop** against consistent, cached API responses  
+- 🌐 **Demo** applications without hitting real APIs or leaking secrets  
+- 📦 **Ship** frontend projects with sample data (even when private or authenticated)  
+- 🔌 **Mock** production APIs in CI/CD or offline settings  
+
+---
+
 ## ✅ Features
 
-- [x] Record HTTP GET responses to JSON
-- [x] Serve responses locally, mimicking original API paths
-- [x] Configurable base URL stripping
-- [x] Add custom headers when recording
-- [x] Override output directory per-record
-- [x] Human-friendly and URL-safe filenames (query support)
-- [ ] Record POST/PUT payloads
-- [ ] Support Authentication 
-- [ ] Replay matching based on headers
+- Supports `GET` request recording with custom headers
+- Strip base URLs for clean, logical folder structures
+- Query parameter handling with safe file encoding
+- Human-readable `.json` response files
+- Custom output directory support
+- Serve responses over HTTP on configurable ports
+- Easy to script or automate (great in CI pipelines)
+
+---
+
+## 🔥 Common APIs That Could Benefit
+
+| API Type             | Usefulness for Emulation | Notes                                                                 |
+|----------------------|---------------------------|-----------------------------------------------------------------------|
+| Game APIs         | ✅✅✅                      | Blizzard, Riot, Steam, Twitch — ideal for stable demos or dev work   |
+| SaaS / REST APIs  | ✅✅✅                      | Stripe, GitHub, Shopify — great for mocking predictable responses     |
+| Mail APIs         | ✅✅                        | SendGrid, Mailgun — useful for simulating confirmation flows          |
+| Public JSON APIs  | ✅                          | IP lookup, weather, country APIs — good for offline testing           |
+| LLM APIs (OpenAI) | ❌                          | Too large & dynamic — token-based & expensive per request             |
+| Docs APIs         | ✅ (partial)                | Notion, Confluence — works for static page preview/testing            |
+| Shipping APIs     | ✅✅                        | FedEx, UPS — useful for static label/tracking testing                 |
+| Analytics APIs    | ✅                          | Good for dashboards and static report development                     |
+
+> ⚠️ Sorry, we cannot replay your AI-powered, streaming, multi-modal OpenAI wrapper with fallback retries and fine-tuned models. Yet.
 
 
 ---
