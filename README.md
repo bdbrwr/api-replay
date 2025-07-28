@@ -40,18 +40,7 @@
 - Show off a project that depends on private or rate-limited APIs
 - Cache responses behind an API key for development/testing
 - Demo a frontend app offline with static data
-- Share reproducible API responses for bug reports
-
----
-
-## 🚀 Use Cases & Features
-
-**API-Replay** is designed for developers who want to:
-
-- 🧪 **Develop** against consistent, cached API responses  
-- 🌐 **Demo** applications without hitting real APIs or leaking secrets  
-- 📦 **Ship** frontend projects with sample data (even when private or authenticated)  
-- 🔌 **Mock** production APIs in CI/CD or offline settings  
+- Share reproducible API responses for bug reports or testing
 
 ---
 
@@ -73,6 +62,7 @@
 |----------------------|---------------------------|-----------------------------------------------------------------------|
 | Game APIs         | ✅✅✅                      | Blizzard, Riot, Steam, Twitch — ideal for stable demos or dev work   |
 | SaaS / REST APIs  | ✅✅✅                      | Stripe, GitHub, Shopify — great for mocking predictable responses     |
+| 🛠️ Internal APIs  | ✅✅✅                      | Great for isolating frontend work from backend logic and auth layers  |
 | Mail APIs         | ✅✅                        | SendGrid, Mailgun — useful for simulating confirmation flows          |
 | Public JSON APIs  | ✅                          | IP lookup, weather, country APIs — good for offline testing           |
 | LLM APIs (OpenAI) | ❌                          | Too large & dynamic — token-based & expensive per request             |
