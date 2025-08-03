@@ -15,9 +15,6 @@
   <a href="https://x.com/bdbrwr">
     <img src="https://img.shields.io/badge/Twitter-@bdbrwr-1DA1F2?logo=twitter&style=flat" alt="Twitter">
   </a>
-  <a href="https://blog.boot.dev/news/hackathon-2025/">
-    <img src="https://img.shields.io/badge/Boot.dev-Hackathon-A77618?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCAzMCAzMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMu...." alt="Boot.dev Hackathon">
-  </a>
 </p>
 
 # API-Replay
@@ -28,10 +25,6 @@
 🎯 Record real API responses  
 🔁 Replay them over HTTP from your local machine  
 📦 Easily ship demos without exposing secrets or requiring live APIs  
-
-> This project was originally built for the [Boot.Dev Hackaton](https://boot.dev/) and I will likely evolve this beyond the event as my capstone project for the programme
-
-> If you like this project, please hit it with a star ⭐
 
 ---
 
