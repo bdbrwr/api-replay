@@ -167,7 +167,7 @@ Query parameters are safely encoded in the filenames
 
 - [Cobra](https://github.com/spf13/cobra) – CLI framework
 - [Viper](https://github.com/spf13/viper) – Config management
-- [Chi](https://github.com/go-chi/chi) – Lightweight HTTP router
+- [Echo](https://github.com/labstack/echo) – High-performance HTTP server
 
 --- 
 ## 🤝 Contributing 

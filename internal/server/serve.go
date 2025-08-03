@@ -12,7 +12,7 @@ import (
 
 	"github.com/bdbrwr/api-replay/internal/cliutils"
 	"github.com/bdbrwr/api-replay/internal/config"
-	"github.com/go-chi/chi/v5"
+	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 )
 
@@ -35,7 +35,7 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 				dirPath = cfg.Dir
 			}
 
-			router := chi.NewRouter()
+			e := echo.New()
 
 			err = filepath.WalkDir(dirPath, func(path string, d fs.DirEntry, walkErr error) error {
 				if walkErr != nil || d.IsDir() || filepath.Ext(path) != ".json" {
@@ -64,35 +64,30 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 				}
 
 				handlerPath := path
-				router.Get(routePath, func(w http.ResponseWriter, r *http.Request) {
-					// If we have expected query parameters, validate them
-					if expectedQuery != "" {
-						if r.URL.RawQuery != expectedQuery {
-							http.NotFound(w, r)
-							return
-						}
+				e.GET(routePath, func(c echo.Context) error {
+					if expectedQuery != "" && c.Request().URL.RawQuery != expectedQuery {
+						return echo.NewHTTPError(http.StatusNotFound, "Query string mismatch")
 					}
 
 					file, err := os.Open(handlerPath)
 					if err != nil {
-						http.Error(w, "failed opening cached file", http.StatusInternalServerError)
-						return
+						return echo.NewHTTPError(http.StatusInternalServerError, "failed opening cached file")
 					}
 					defer file.Close()
 
 					var resp CachedResponse
 					if err := json.NewDecoder(file).Decode(&resp); err != nil {
-						http.Error(w, "invalid cached file", http.StatusInternalServerError)
-						return
+						return echo.NewHTTPError(http.StatusInternalServerError, "invalid cached file")
 					}
 
 					for k, v := range resp.Headers {
 						for _, h := range v {
-							w.Header().Add(k, h)
+							c.Response().Header().Add(k, h)
 						}
 					}
-					w.WriteHeader(resp.Status)
-					w.Write(resp.Body)
+					c.Response().WriteHeader(resp.Status)
+					c.Response().Write(resp.Body)
+					return nil
 				})
 
 				displayPath := routePath
@@ -108,7 +103,7 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 			}
 
 			fmt.Printf("Serving cached responses from %s on http://localhost:%s\n", dirPath, port)
-			return http.ListenAndServe(":"+port, router)
+			return e.Start(":" + port)
 		},
 	}
 
