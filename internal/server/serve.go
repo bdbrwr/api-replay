@@ -13,6 +13,7 @@ import (
 	"github.com/bdbrwr/api-replay/internal/cliutils"
 	"github.com/bdbrwr/api-replay/internal/config"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/cobra"
 )
 
@@ -36,6 +37,9 @@ func NewCommand(cfg *config.Config) *cobra.Command {
 			}
 
 			e := echo.New()
+
+			e.Use(middleware.Logger())
+			e.Use(middleware.RequestID())
 
 			err = filepath.WalkDir(dirPath, func(path string, d fs.DirEntry, walkErr error) error {
 				if walkErr != nil || d.IsDir() || filepath.Ext(path) != ".json" {
