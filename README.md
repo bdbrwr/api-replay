@@ -163,6 +163,13 @@ Query parameters are safely encoded in the filenames
 - [Echo](https://github.com/labstack/echo) – High-performance HTTP server
 
 --- 
+
+## 🛣️ Roadmap
+- Record POST / PUT / DELETE payloads
+- Authentication sugar
+- Replay matching based on headers (Authentication yes / no)
+- Randomization (?)
+
 ## 🤝 Contributing 
 Feel free to fork and contribute via PRs!
 Ideas welcome in [Issues](https://github.com/bdbrwr/api-replay/issues)
