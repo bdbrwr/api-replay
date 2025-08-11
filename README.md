@@ -28,15 +28,6 @@
 
 ---
 
-## ✨ Use Cases
-
-- Show off a project that depends on private or rate-limited APIs
-- Cache responses behind an API key for development/testing
-- Demo a frontend app offline with static data
-- Share reproducible API responses for bug reports or testing
-
----
-
 ## ✅ Features
 
 - Supports `GET` request recording with custom headers
@@ -169,6 +160,8 @@ Query parameters are safely encoded in the filenames
 - Authentication sugar
 - Replay matching based on headers (Authentication yes / no)
 - Randomization (?)
+
+---
 
 ## 🤝 Contributing 
 Feel free to fork and contribute via PRs!
